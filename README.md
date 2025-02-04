@@ -11,7 +11,7 @@ Key benefits of using the Taguchi Method include:
 - Efficient Testing: Reduce the number of experiments needed while maintaining statistical validity
 - Design for Robustness: Identify parameters that make your process or product less sensitive to variations
 - Cheap Results: Save time and resources by running fewer experiments
-- Improve Quality: Systematically optimize multiple factors simultaneously
+- Improve Quality: Optimize multiple factors at the same time
 - Clear Results: Determine exactly factors most strongly influence your desired outcome
 
 For example, if you're optimizing a process time, temp, and pressure variables (3 factors), and you're trying 3 levels of each, a full factorial design would require 27 experiments. Using the Taguchi L9 array, you can get meaningful results with just 9 experiments.
