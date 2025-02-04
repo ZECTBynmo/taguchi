@@ -2,6 +2,20 @@
 
 A TypeScript package for implementing Taguchi Method design of experiments
 
+# Motivation/Background
+
+The Taguchi Method is a statistical approach to experimental design that helps optimize processes and products while minimizing the number of required experiments. Unlike traditional full factorial experiments that test every possible combination of factors, the Taguchi Method uses specially designed orthogonal arrays to test pairs of combinations, significantly reducing the number of required experiments while still capturing the main effects of each factor.
+
+Key benefits of using the Taguchi Method include:
+
+- Efficient Testing: Reduce the number of experiments needed while maintaining statistical validity
+- Design for Robustness: Identify parameters that make your process or product less sensitive to variations
+- Cheap Results: Save time and resources by running fewer experiments
+- Improve Quality: Systematically optimize multiple factors simultaneously
+- Clear Results: Determine exactly factors most strongly influence your desired outcome
+
+For example, if you're optimizing a process time, temp, and pressure variables (3 factors), and you're trying 3 levels of each, a full factorial design would require 27 experiments. Using the Taguchi L9 array, you can get meaningful results with just 9 experiments.
+
 ## Installation
 
 ```bash
