@@ -1,0 +1,42 @@
+{
+  "name": "taguchi",
+  "version": "1.0.0",
+  "description": "A TypeScript package for implementing Taguchi Method design of experiments",
+  "module": "src/index.ts",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "format": "prettier --write \"**/*.{ts,json}\"",
+    "prepublishOnly": "bun run build"
+  },
+  "keywords": [
+    "taguchi",
+    "design-of-experiments",
+    "doe",
+    "optimization",
+    "typescript",
+    "bun"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@typescript-eslint/eslint-plugin": "^8.23.0",
+    "@typescript-eslint/parser": "^8.23.0",
+    "eslint": "^9.19.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "prettier": "^3.4.2"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
