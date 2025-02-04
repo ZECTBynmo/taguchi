@@ -1,6 +1,6 @@
 # Taguchi Array Testing Package
 
-A TypeScript package for implementing Taguchi Method design of experiments, powered by Bun.
+A TypeScript package for implementing Taguchi Method design of experiments
 
 ## Installation
 
