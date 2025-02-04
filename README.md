@@ -27,16 +27,15 @@ bun install taguchi
 ```typescript
 import { Taguchi } from 'taguchi'
 
-// Create a new Taguchi experiment
-const experiment = new Taguchi('Temperature Optimization')
-
-// Add factors with their levels
-experiment.addFactor('Temperature', [150, 175, 200])
-experiment.addFactor('Time', [30, 45, 60])
-experiment.addFactor('Pressure', [10, 15, 20])
-
-// Set the orthogonal array type (L9 supports up to 4 factors with 3 levels each)
-experiment.setOrthogonalArrayType('L9')
+// Create a new Taguchi experiment with factors and levels
+const experiment = new Taguchi({
+  type: 'L9',
+  factors: {
+    Temperature: [150, 175, 200],
+    Time: [30, 45, 60],
+    Pressure: [10, 15, 20],
+  },
+})
 
 // Generate experiments
 const experiments = experiment.generateExperiments()
@@ -70,20 +69,21 @@ The package includes several standard orthogonal arrays:
 - `L16`: 2 levels, up to 15 factors
 - `L18`: 3 levels, up to 8 factors (mixed level design)
 
-The appropriate array type will be selected based on your factors and their levels.
+The appropriate array type should be selected based on your factors and their levels.
 
 ## API Reference
 
 ### Class: Taguchi
 
-#### Constructor
-
-- `constructor(name: string)`
+```typescript
+new Taguchi({
+  type: 'L4' | 'L8' | 'L9' | 'L16' | 'L18',
+  factors: Record<string, any[]>,
+})
+```
 
 #### Methods
 
-- `addFactor(name: string, levels: any[]): void`
-- `setOrthogonalArrayType(type: 'L4' | 'L8' | 'L9' | 'L16' | 'L18'): void`
 - `generateExperiments(): Array<Record<string, any>>`
 - `analyzeResults(results: ExperimentResult[]): Record<string, number>`
 

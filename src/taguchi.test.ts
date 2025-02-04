@@ -3,45 +3,64 @@ import { Taguchi, type ExperimentResult } from './index'
 
 describe('Taguchi', () => {
   test('should create a new Taguchi instance', () => {
-    const taguchi = new Taguchi('Test Experiment')
+    const taguchi = new Taguchi({
+      type: 'L9',
+      factors: {
+        Temperature: [150, 175, 200],
+      },
+    })
     expect(taguchi).toBeInstanceOf(Taguchi)
   })
 
-  test('should add factors with levels', () => {
-    const taguchi = new Taguchi('Manufacturing Process')
-    taguchi.addFactor('Temperature', [100, 150, 200])
-    taguchi.addFactor('Pressure', [50, 75, 100])
-    expect(() => taguchi.generateExperiments()).toThrow('Orthogonal array type must be set')
-  })
-
   test('should throw error when adding factor with insufficient levels', () => {
-    const taguchi = new Taguchi('Test')
-    expect(() => taguchi.addFactor('Invalid', [1])).toThrow('must have at least 2 levels')
+    expect(
+      () =>
+        new Taguchi({
+          type: 'L9',
+          factors: {
+            Invalid: [1],
+          },
+        })
+    ).toThrow('must have at least 2 levels')
   })
 
   test('should throw error when using incompatible array type', () => {
-    const taguchi = new Taguchi('Incompatible Test')
-    taguchi.addFactor('A', [1, 2, 3])
-    taguchi.addFactor('B', [1, 2, 3])
-    expect(() => taguchi.setOrthogonalArrayType('L4')).toThrow('L4 can only accommodate 2 levels')
+    expect(
+      () =>
+        new Taguchi({
+          type: 'L4',
+          factors: {
+            A: [1, 2, 3],
+            B: [1, 2],
+          },
+        })
+    ).toThrow('L4 can only accommodate 2 levels')
   })
 
   test('should throw error when too many factors for array type', () => {
-    const taguchi = new Taguchi('Too Many Factors')
-    taguchi.addFactor('A', [1, 2])
-    taguchi.addFactor('B', [1, 2])
-    taguchi.addFactor('C', [1, 2])
-    taguchi.addFactor('D', [1, 2])
-    expect(() => taguchi.setOrthogonalArrayType('L4')).toThrow('L4 can only accommodate 3 factors')
+    expect(
+      () =>
+        new Taguchi({
+          type: 'L4',
+          factors: {
+            A: [1, 2],
+            B: [1, 2],
+            C: [1, 2],
+            D: [1, 2],
+          },
+        })
+    ).toThrow('L4 can only accommodate 3 factors')
   })
 
   test('should generate experiments using L4 array', () => {
-    const taguchi = new Taguchi('L4 Test')
-    taguchi.addFactor('Material', ['Steel', 'Aluminum'])
-    taguchi.addFactor('Temperature', [100, 200])
-    taguchi.addFactor('Time', [30, 60])
-
-    taguchi.setOrthogonalArrayType('L4')
+    const taguchi = new Taguchi({
+      type: 'L4',
+      factors: {
+        Material: ['Steel', 'Aluminum'],
+        Temperature: [100, 200],
+        Time: [30, 60],
+      },
+    })
 
     const experiments = taguchi.generateExperiments()
     expect(experiments).toHaveLength(4)
@@ -53,11 +72,13 @@ describe('Taguchi', () => {
   })
 
   test('should analyze results and find optimal levels', () => {
-    const taguchi = new Taguchi('Quality Optimization')
-    taguchi.addFactor('Speed', [1000, 1500])
-    taguchi.addFactor('Feed', [0.1, 0.2])
-
-    taguchi.setOrthogonalArrayType('L4')
+    const taguchi = new Taguchi({
+      type: 'L4',
+      factors: {
+        Speed: [1000, 1500],
+        Feed: [0.1, 0.2],
+      },
+    })
 
     const experiments = taguchi.generateExperiments()
     const results: ExperimentResult[] = [
@@ -75,12 +96,14 @@ describe('Taguchi', () => {
   })
 
   test('should handle a complex L9 experiment', () => {
-    const taguchi = new Taguchi('Complex Manufacturing')
-    taguchi.addFactor('Temperature', [150, 175, 200])
-    taguchi.addFactor('Time', [30, 45, 60])
-    taguchi.addFactor('Pressure', [10, 15, 20])
-
-    taguchi.setOrthogonalArrayType('L9')
+    const taguchi = new Taguchi({
+      type: 'L9',
+      factors: {
+        Temperature: [150, 175, 200],
+        Time: [30, 45, 60],
+        Pressure: [10, 15, 20],
+      },
+    })
 
     const experiments = taguchi.generateExperiments()
     expect(experiments).toHaveLength(9)

@@ -78,54 +78,47 @@ const STANDARD_ARRAYS = {
   ],
 }
 
+interface TaguchiConfig {
+  type: OrthogonalArrayType
+  factors: Record<string, any[]>
+}
+
 export class Taguchi {
-  private readonly name: string
-  private factors: Factor[] = []
+  private factors: Array<{ name: string; levels: any[] }> = []
   private orthogonalArray: number[][] = []
 
-  constructor(name: string) {
-    this.name = name
+  constructor(config: TaguchiConfig) {
+    Object.entries(config.factors).forEach(([name, levels]) => {
+      if (levels.length < 2) {
+        throw new Error(`Factor ${name} must have at least 2 levels`)
+      }
+      this.factors.push({ name, levels })
+    })
+    this.validateArrayType(config.type)
+    this.orthogonalArray = STANDARD_ARRAYS[config.type]
   }
 
-  addFactor(name: string, levels: any[]): void {
-    if (levels.length < 2) {
-      throw new Error(`Factor ${name} must have at least 2 levels`)
-    }
-    this.factors.push({ name, levels })
-  }
-
-  private validateArrayType(type: OrthogonalArrayType): void {
+  private validateArrayType(type: OrthogonalArrayType) {
     const array = STANDARD_ARRAYS[type]
+    const maxLevels = Math.max(...array.flat())
+    const hasInvalidLevels = this.factors.some((factor) => factor.levels.length > maxLevels)
+    if (hasInvalidLevels) {
+      throw new Error(`${type} can only accommodate ${maxLevels} levels per factor`)
+    }
+
     const factorCount = this.factors.length
     const maxFactors = array[0].length
-
     if (factorCount > maxFactors) {
       throw new Error(
         `${type} can only accommodate ${maxFactors} factors, but ${factorCount} were provided`
       )
     }
-
-    const maxLevels = Math.max(...array.flat())
-    const hasInvalidLevels = this.factors.some((factor) => factor.levels.length > maxLevels)
-
-    if (hasInvalidLevels) {
-      throw new Error(`${type} can only accommodate ${maxLevels} levels per factor`)
-    }
-  }
-
-  setOrthogonalArrayType(type: OrthogonalArrayType): void {
-    this.validateArrayType(type)
-    this.orthogonalArray = STANDARD_ARRAYS[type]
   }
 
   generateExperiments(): Array<Record<string, any>> {
-    if (!this.orthogonalArray.length) {
-      throw new Error('Orthogonal array type must be set before generating experiments')
-    }
     if (this.factors.length === 0) {
       throw new Error('At least one factor must be added before generating experiments')
     }
-
     return this.orthogonalArray.map((row) => {
       const experiment: Record<string, any> = {}
       this.factors.forEach((factor, index) => {
@@ -138,24 +131,19 @@ export class Taguchi {
 
   analyzeResults(results: ExperimentResult[]): Record<string, number> {
     const analysis: Record<string, number> = {}
-
     this.factors.forEach((factor) => {
       const levelEffects = factor.levels.map((_, levelIndex) => {
         const experimentsWithLevel = results.filter(
           (result) => result.factors[factor.name] === factor.levels[levelIndex]
         )
-
         const avgResponse =
           experimentsWithLevel.reduce((sum, exp) => sum + exp.response, 0) /
           experimentsWithLevel.length
-
         return avgResponse
       })
-
       const optimalLevelIndex = levelEffects.indexOf(Math.max(...levelEffects))
       analysis[factor.name] = optimalLevelIndex
     })
-
     return analysis
   }
 }
