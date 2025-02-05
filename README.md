@@ -1,8 +1,8 @@
-# Taguchi Array Testing Package
+# Taguchi Method
 
 A TypeScript package for implementing Taguchi Method design of experiments
 
-# Motivation/Background
+## Motivation/Background
 
 The Taguchi Method is a statistical approach to experimental design that helps optimize processes and products while minimizing the number of required experiments. Unlike traditional full factorial experiments that test every possible combination of factors, the Taguchi Method uses specially designed orthogonal arrays to test pairs of combinations, significantly reducing the number of required experiments while still capturing the main effects of each factor.
 
@@ -16,13 +16,25 @@ Key benefits of using the Taguchi Method include:
 
 For example, if you're optimizing a process time, temp, and pressure variables (3 factors), and you're trying 3 levels of each, a full factorial design would require 27 experiments. Using the Taguchi L9 array, you can get meaningful results with just 9 experiments.
 
+Read more:
+
+https://www.sciencedirect.com/topics/materials-science/taguchi-method
+
+Or watch this great breakdown by NighHawkinLight
+
+https://www.youtube.com/watch?v=5oULEuOoRd0
+
 ## Installation
 
-```bash
-bun install taguchi
-```
+`bun install taguchi`
+
+or
+
+`npm install taguchi`
 
 ## Usage
+
+Let's say we're optimizing a process that has temperature, time, and pressure variables. We decide on 3 levels we want to test, and setup the experiment.
 
 ```typescript
 import { Taguchi } from 'taguchi'
@@ -37,15 +49,17 @@ const experiment = new Taguchi({
   },
 })
 
-// Generate experiments
+// Generate experiments - a list of values you should run to feed the analysis
 const experiments = experiment.generateExperiments()
 console.log(experiments)
 
 // After running experiments, analyze results
-const results = experiments.map((exp, i) => ({
-  factors: exp,
-  response: 95 + i * 2, // Example response values
-}))
+const results = await Promise.all(
+  experiments.map(async (exp, i) => ({
+    factors: exp,
+    result: await getExperimentValue(exp), // Run the specified experiment and get a value (eg. 95)
+  }))
+)
 
 const analysis = experiment.analyzeResults(results)
 ```
@@ -65,7 +79,7 @@ Example analysis output:
     Pressure: [36.2, 37.4, 38.5]
   },
   mainEffects: {
-    Temperature: [92.3, 97.8, 94.5],  // Average response at each level
+    Temperature: [92.3, 97.8, 94.5],  // Average result at each level
     Time: [96.2, 95.1, 93.4],
     Pressure: [93.8, 95.9, 98.2]
   },
@@ -112,7 +126,7 @@ The package provides comprehensive statistical analysis of experimental results:
 
 ### 1. Optimal Levels (`optimalLevels`)
 
-- The best level for each factor
+- The best level for each factor according to the experiments
 
 ### 2. Signal-to-Noise Ratios (`snRatios`)
 
@@ -121,8 +135,8 @@ The package provides comprehensive statistical analysis of experimental results:
 
 ### 3. Main Effects (`mainEffects`)
 
-- Shows the average response at each level of each factor
-- Helps visualize how each factor affects the response
+- Shows the average result at each level of each factor
+- Helps visualize how each factor affects the result
 - Useful for:
   - Understanding factor impact
   - Identifying trends (linear, nonlinear)
@@ -200,99 +214,6 @@ Detailed ANOVA results for each factor:
        .map(([factor]) => factor)
      ```
 
-#### Example: Making Decisions with ANOVA Results
-
-```typescript
-function analyzeFactorImportance(analysis: AnalysisResult) {
-  const criticalFactors = []
-  const minorFactors = []
-  const insignificantFactors = []
-
-  Object.entries(analysis.variance).forEach(([factor, stats]) => {
-    if (stats.isPooled) {
-      insignificantFactors.push(factor)
-    } else if (stats.f > 4 && stats.contribution > 20) {
-      criticalFactors.push(factor)
-    } else {
-      minorFactors.push(factor)
-    }
-  })
-
-  return {
-    criticalFactors, // Need tight control
-    minorFactors, // Monitor but less critical
-    insignificantFactors, // Can have wider tolerances
-  }
-}
-```
-
-#### Using Results for Process Improvement
-
-1. **Identify Critical Factors**
-
-   ```typescript
-   const analysis = taguchi.analyzeResults(results)
-
-   // Find factors with strong effects
-   const criticalFactors = Object.entries(analysis.variance)
-     .filter(([_, stats]) => !stats.isPooled && stats.f > 4)
-     .map(([factor]) => factor)
-   ```
-
-2. **Optimize Factor Levels**
-
-   ```typescript
-   // Get optimal settings for critical factors
-   const optimalSettings = criticalFactors.reduce(
-     (settings, factor) => ({
-       ...settings,
-       [factor]: analysis.optimalLevels[factor],
-     }),
-     {}
-   )
-   ```
-
-3. **Assess Robustness**
-
-   ```typescript
-   // Check S/N ratios for stability
-   const robustFactors = Object.entries(analysis.snRatios)
-     .filter(([_, ratios]) => {
-       const range = Math.max(...ratios) - Math.min(...ratios)
-       return range > 3 // Significant effect on robustness
-     })
-     .map(([factor]) => factor)
-   ```
-
-4. **Validate Results**
-
-   ```typescript
-   function validateResults(analysis: AnalysisResult) {
-     // Check for statistical validity
-     const hasValidError = analysis.error && analysis.error.df >= 2
-     const hasSignificantFactors = Object.values(analysis.variance).some(
-       (stats) => stats.f > 2 && !stats.isPooled
-     )
-
-     return {
-       isValid: hasValidError && hasSignificantFactors,
-       errorDf: analysis.error?.df ?? 0,
-       significantFactorCount: Object.values(analysis.variance).filter(
-         (stats) => stats.f > 2 && !stats.isPooled
-       ).length,
-     }
-   }
-   ```
-
-Use ANOVA results when you need:
-
-- Statistical validation of factor effects
-- Detailed understanding of variation sources
-- Rigorous comparison of factor importance
-- Documentation for quality systems or research
-- Process optimization decisions
-- Setting control limits and tolerances
-
 ## Orthogonal Array Types
 
 The package includes several standard orthogonal arrays:
@@ -326,7 +247,7 @@ new Taguchi({
 ```typescript
 type ExperimentResult = {
   factors: Record<string, any>
-  response: number
+  result: number
 }
 
 type AnalysisResult = {

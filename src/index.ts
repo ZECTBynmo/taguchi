@@ -5,7 +5,7 @@ export type Factor = {
 
 export type ExperimentResult = {
   factors: Record<string, any>
-  response: number
+  result: number
 }
 
 export type OrthogonalArrayType = 'L4' | 'L8' | 'L9' | 'L16' | 'L18'
@@ -191,25 +191,25 @@ export class Taguchi {
     })
   }
 
-  private calculateSNRatio(responses: number[]): number {
-    const n = responses.length
+  private calculateSNRatio(results: number[]): number {
+    const n = results.length
     const EPSILON = 1e-10
 
     switch (this.snRatioType) {
       case SNRatioType.LARGER_IS_BETTER: {
-        const sum = responses.reduce((acc, y) => {
+        const sum = results.reduce((acc, y) => {
           const value = Math.max(Math.abs(y), EPSILON)
           return acc + 1 / (value * value)
         }, 0)
         return -10 * Math.log10(sum / n)
       }
       case SNRatioType.SMALLER_IS_BETTER: {
-        const sum = responses.reduce((acc, y) => acc + y * y, 0)
+        const sum = results.reduce((acc, y) => acc + y * y, 0)
         return -10 * Math.log10(Math.max(sum / n, EPSILON))
       }
       case SNRatioType.NOMINAL_IS_BEST: {
         const target = this.targetValue!
-        const deviations = responses.map((y) => (y - target) ** 2)
+        const deviations = results.map((y) => (y - target) ** 2)
         const msd = Math.max(deviations.reduce((sum, d) => sum + d, 0) / n, EPSILON)
         return -10 * Math.log10(msd)
       }
@@ -276,7 +276,7 @@ export class Taguchi {
           (result) => result.factors[factor.name] === factor.levels[levelIndex]
         )
         return (
-          experimentsWithLevel.reduce((sum, exp) => sum + exp.response, 0) /
+          experimentsWithLevel.reduce((sum, exp) => sum + exp.result, 0) /
           experimentsWithLevel.length
         )
       })
@@ -290,8 +290,8 @@ export class Taguchi {
     error: AnalysisResult['error']
   } {
     const MIN_ERROR_MS = 1e-10
-    const grandMean = results.reduce((sum, r) => sum + r.response, 0) / results.length
-    const totalSS = results.reduce((sum, r) => sum + (r.response - grandMean) ** 2, 0)
+    const grandMean = results.reduce((sum, r) => sum + r.result, 0) / results.length
+    const totalSS = results.reduce((sum, r) => sum + (r.result - grandMean) ** 2, 0)
 
     const anova: AnalysisResult['variance'] = {}
 
@@ -303,7 +303,7 @@ export class Taguchi {
         )
         return {
           mean:
-            experimentsWithLevel.reduce((sum, exp) => sum + exp.response, 0) /
+            experimentsWithLevel.reduce((sum, exp) => sum + exp.result, 0) /
             experimentsWithLevel.length,
           n: experimentsWithLevel.length,
         }
@@ -436,7 +436,7 @@ export class Taguchi {
         const experimentsWithLevel = results.filter(
           (result) => result.factors[factor.name] === factor.levels[levelIndex]
         )
-        return this.calculateSNRatio(experimentsWithLevel.map((exp) => exp.response))
+        return this.calculateSNRatio(experimentsWithLevel.map((exp) => exp.result))
       })
 
       const values = mainEffects[factor.name]

@@ -89,10 +89,10 @@ describe('Taguchi', () => {
 
     const experiments = taguchi.generateExperiments()
     const results: ExperimentResult[] = [
-      { factors: experiments[0], response: 95 },
-      { factors: experiments[1], response: 82 },
-      { factors: experiments[2], response: 78 },
-      { factors: experiments[3], response: 85 },
+      { factors: experiments[0], result: 95 },
+      { factors: experiments[1], result: 82 },
+      { factors: experiments[2], result: 78 },
+      { factors: experiments[3], result: 85 },
     ]
 
     const analysis = taguchi.analyzeResults(results)
@@ -139,13 +139,13 @@ describe('Taguchi', () => {
     const experiments = taguchi.generateExperiments()
     expect(experiments).toHaveLength(9)
 
-    const mockResponse = (experiment: Record<string, any>): number => {
+    const mockResult = (experiment: Record<string, any>): number => {
       return experiment.Temperature * 0.5 + experiment.Time * 0.3 + experiment.Pressure * 0.2
     }
 
     const results: ExperimentResult[] = experiments.map((exp) => ({
       factors: exp,
-      response: mockResponse(exp),
+      result: mockResult(exp),
     }))
 
     const analysis = taguchi.analyzeResults(results)
@@ -168,10 +168,10 @@ describe('Taguchi', () => {
       })
 
       const results: ExperimentResult[] = [
-        { factors: { A: 1, B: 1 }, response: 10 },
-        { factors: { A: 1, B: 2 }, response: 20 },
-        { factors: { A: 2, B: 1 }, response: 30 },
-        { factors: { A: 2, B: 2 }, response: 40 },
+        { factors: { A: 1, B: 1 }, result: 10 },
+        { factors: { A: 1, B: 2 }, result: 20 },
+        { factors: { A: 2, B: 1 }, result: 30 },
+        { factors: { A: 2, B: 2 }, result: 40 },
       ]
 
       const analysis = taguchi.analyzeResults(results)
@@ -193,10 +193,10 @@ describe('Taguchi', () => {
       })
 
       const results: ExperimentResult[] = [
-        { factors: { A: 1, B: 1 }, response: 10 },
-        { factors: { A: 1, B: 2 }, response: 12 },
-        { factors: { A: 2, B: 1 }, response: 20 },
-        { factors: { A: 2, B: 2 }, response: 22 },
+        { factors: { A: 1, B: 1 }, result: 10 },
+        { factors: { A: 1, B: 2 }, result: 12 },
+        { factors: { A: 2, B: 1 }, result: 20 },
+        { factors: { A: 2, B: 2 }, result: 22 },
       ]
 
       const analysis = taguchi.analyzeResults(results)
@@ -209,7 +209,7 @@ describe('Taguchi', () => {
 
       const ssA = 2 * ((a1Mean - grandMean) ** 2 + (a2Mean - grandMean) ** 2)
       const ssB = 2 * ((b1Mean - grandMean) ** 2 + (b2Mean - grandMean) ** 2)
-      const totalSS = results.reduce((sum, r) => sum + (r.response - grandMean) ** 2, 0)
+      const totalSS = results.reduce((sum, r) => sum + (r.result - grandMean) ** 2, 0)
       const errorSS = totalSS - ssA - ssB
 
       expect(analysis.variance.A.ss).toBeCloseTo(ssA, 1)
@@ -249,15 +249,15 @@ describe('Taguchi', () => {
       })
 
       const results: ExperimentResult[] = [
-        { factors: { A: 1, B: 1, C: 1 }, response: 10 },
-        { factors: { A: 1, B: 2, C: 2 }, response: 20 },
-        { factors: { A: 1, B: 3, C: 3 }, response: 30 },
-        { factors: { A: 2, B: 1, C: 2 }, response: 25 },
-        { factors: { A: 2, B: 2, C: 3 }, response: 35 },
-        { factors: { A: 2, B: 3, C: 1 }, response: 15 },
-        { factors: { A: 3, B: 1, C: 3 }, response: 40 },
-        { factors: { A: 3, B: 2, C: 1 }, response: 20 },
-        { factors: { A: 3, B: 3, C: 2 }, response: 30 },
+        { factors: { A: 1, B: 1, C: 1 }, result: 10 },
+        { factors: { A: 1, B: 2, C: 2 }, result: 20 },
+        { factors: { A: 1, B: 3, C: 3 }, result: 30 },
+        { factors: { A: 2, B: 1, C: 2 }, result: 25 },
+        { factors: { A: 2, B: 2, C: 3 }, result: 35 },
+        { factors: { A: 2, B: 3, C: 1 }, result: 15 },
+        { factors: { A: 3, B: 1, C: 3 }, result: 40 },
+        { factors: { A: 3, B: 2, C: 1 }, result: 20 },
+        { factors: { A: 3, B: 3, C: 2 }, result: 30 },
       ]
 
       const analysis = taguchi.analyzeResults(results)
@@ -305,7 +305,7 @@ describe('Taguchi', () => {
       })
     })
 
-    test('should identify correct optimal levels with known response pattern', () => {
+    test('should identify correct optimal levels with known result pattern', () => {
       const taguchi = new Taguchi({
         type: 'L4',
         factors: {
@@ -316,10 +316,10 @@ describe('Taguchi', () => {
       })
 
       const results: ExperimentResult[] = [
-        { factors: { A: 10, B: 100 }, response: 50 },
-        { factors: { A: 10, B: 200 }, response: 40 },
-        { factors: { A: 20, B: 100 }, response: 30 },
-        { factors: { A: 20, B: 200 }, response: 20 },
+        { factors: { A: 10, B: 100 }, result: 50 },
+        { factors: { A: 10, B: 200 }, result: 40 },
+        { factors: { A: 20, B: 100 }, result: 30 },
+        { factors: { A: 20, B: 200 }, result: 20 },
       ]
 
       const analysis = taguchi.analyzeResults(results)
@@ -342,10 +342,10 @@ describe('Taguchi', () => {
       })
 
       const results: ExperimentResult[] = [
-        { factors: { A: 1, B: 1 }, response: 100 },
-        { factors: { A: 1, B: 2 }, response: 120 },
-        { factors: { A: 2, B: 1 }, response: 80 },
-        { factors: { A: 2, B: 2 }, response: 90 },
+        { factors: { A: 1, B: 1 }, result: 100 },
+        { factors: { A: 1, B: 2 }, result: 120 },
+        { factors: { A: 2, B: 1 }, result: 80 },
+        { factors: { A: 2, B: 2 }, result: 90 },
       ]
 
       const analysis = taguchi.analyzeResults(results)
@@ -379,10 +379,10 @@ describe('Taguchi', () => {
       })
 
       const results: ExperimentResult[] = [
-        { factors: { A: 1, B: 1 }, response: 5 },
-        { factors: { A: 1, B: 2 }, response: 4 },
-        { factors: { A: 2, B: 1 }, response: 8 },
-        { factors: { A: 2, B: 2 }, response: 7 },
+        { factors: { A: 1, B: 1 }, result: 5 },
+        { factors: { A: 1, B: 2 }, result: 4 },
+        { factors: { A: 2, B: 1 }, result: 8 },
+        { factors: { A: 2, B: 2 }, result: 7 },
       ]
 
       const analysis = taguchi.analyzeResults(results)
@@ -408,10 +408,10 @@ describe('Taguchi', () => {
       })
 
       const results: ExperimentResult[] = [
-        { factors: { A: 1, B: 1 }, response: 9 },
-        { factors: { A: 1, B: 2 }, response: 11 },
-        { factors: { A: 2, B: 1 }, response: 8 },
-        { factors: { A: 2, B: 2 }, response: 13 },
+        { factors: { A: 1, B: 1 }, result: 9 },
+        { factors: { A: 1, B: 2 }, result: 11 },
+        { factors: { A: 2, B: 1 }, result: 8 },
+        { factors: { A: 2, B: 2 }, result: 13 },
       ]
 
       const analysis = taguchi.analyzeResults(results)
@@ -444,7 +444,7 @@ describe('Taguchi', () => {
 
     const results: ExperimentResult[] = experiments.map((exp) => ({
       factors: exp,
-      response: exp.A * 2 + exp.B + exp.C,
+      result: exp.A * 2 + exp.B + exp.C,
     }))
 
     const analysis = taguchi.analyzeResults(results)
@@ -477,10 +477,10 @@ describe('Taguchi', () => {
       })
 
       const results: ExperimentResult[] = [
-        { factors: { A: 1, B: 1 }, response: 100.8 },
-        { factors: { A: 1, B: 2 }, response: 100.2 },
-        { factors: { A: 2, B: 1 }, response: 199.7 },
-        { factors: { A: 2, B: 2 }, response: 200.3 },
+        { factors: { A: 1, B: 1 }, result: 100.8 },
+        { factors: { A: 1, B: 2 }, result: 100.2 },
+        { factors: { A: 2, B: 1 }, result: 199.7 },
+        { factors: { A: 2, B: 2 }, result: 200.3 },
       ]
 
       const analysis = taguchi.analyzeResults(results)
@@ -515,10 +515,10 @@ describe('Taguchi', () => {
       })
 
       const results: ExperimentResult[] = [
-        { factors: { A: 1, B: 1 }, response: 60 },
-        { factors: { A: 1, B: 2 }, response: 65 },
-        { factors: { A: 2, B: 1 }, response: 96 },
-        { factors: { A: 2, B: 2 }, response: 90 },
+        { factors: { A: 1, B: 1 }, result: 60 },
+        { factors: { A: 1, B: 2 }, result: 65 },
+        { factors: { A: 2, B: 1 }, result: 96 },
+        { factors: { A: 2, B: 2 }, result: 90 },
       ]
 
       const analysis = taguchi.analyzeResults(results)
@@ -547,10 +547,10 @@ describe('Taguchi', () => {
       })
 
       const results: ExperimentResult[] = [
-        { factors: { A: 1 }, response: 10 },
-        { factors: { A: 1 }, response: 12 },
-        { factors: { A: 2 }, response: 20 },
-        { factors: { A: 2 }, response: 22 },
+        { factors: { A: 1 }, result: 10 },
+        { factors: { A: 1 }, result: 12 },
+        { factors: { A: 2 }, result: 20 },
+        { factors: { A: 2 }, result: 22 },
       ]
 
       const analysisLarger = largerBetter.analyzeResults(results)
