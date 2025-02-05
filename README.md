@@ -112,18 +112,12 @@ The package provides comprehensive statistical analysis of experimental results:
 
 ### 1. Optimal Levels (`optimalLevels`)
 
-- Identifies the best level for each factor that maximizes the response
-- Zero-based index into your factor levels array
-- Use when you need to quickly determine the best settings for each factor
+- The best level for each factor
 
 ### 2. Signal-to-Noise Ratios (`snRatios`)
 
 - Measures the robustness of each factor level
 - Higher values indicate better stability and less sensitivity to noise
-- Critical for:
-  - Quality improvement
-  - Reducing process variation
-  - Finding settings that work consistently across different conditions
 
 ### 3. Main Effects (`mainEffects`)
 
