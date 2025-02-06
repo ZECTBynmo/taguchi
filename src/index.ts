@@ -325,16 +325,38 @@ export class Taguchi {
     let errorSS = totalSS - Object.values(anova).reduce((sum, { ss }) => sum + ss, 0)
     let errorDf = results.length - 1 - Object.values(anova).reduce((sum, { df }) => sum + df, 0)
 
+    // Handle saturated designs (when errorDf <= 0)
+    // Instead of throwing error, we'll start with pooling the least significant factor
+    let errorMS = MIN_ERROR_MS
+    const pooledFactors: string[] = []
     if (errorDf <= 0) {
-      throw new Error('Insufficient degrees of freedom for error calculation')
+      // Find factor with smallest SS to initially pool
+      const smallestFactor = Object.entries(anova).sort(([, a], [, b]) => a.ss - b.ss)[0]
+      if (smallestFactor) {
+        const [factorName, analysis] = smallestFactor
+        analysis.isPooled = true
+        analysis.f = 0
+        errorSS = analysis.ss
+        errorDf = analysis.df
+        errorMS = errorSS / errorDf
+        pooledFactors.push(factorName)
+      }
+    } else {
+      errorMS = Math.max(errorSS / errorDf, MIN_ERROR_MS)
     }
-
-    let errorMS = Math.max(errorSS / errorDf, MIN_ERROR_MS)
 
     // Initial F-ratios
     Object.entries(anova).forEach(([factor, analysis]) => {
-      analysis.f = analysis.ms / errorMS
+      if (!analysis.isPooled) {
+        analysis.f = analysis.ms / errorMS
+      }
     })
+
+    // Reset F-ratio for initially pooled factor
+    if (errorDf <= 0 && pooledFactors.length > 0) {
+      const pooledFactor = pooledFactors[0]
+      anova[pooledFactor].f = 0
+    }
 
     // Sort factors by F-ratio to ensure consistent pooling order
     const sortedFactors = Object.entries(anova)
@@ -342,10 +364,6 @@ export class Taguchi {
       .map(([name]) => name)
 
     // Pool insignificant factors
-    const pooledFactors: string[] = []
-    let hasPooledFactors = false
-
-    // Iteratively pool factors and update F-ratios
     let changed = true
     while (changed) {
       changed = false
@@ -357,7 +375,7 @@ export class Taguchi {
         }
       })
 
-      // Find lowest F-ratio
+      // Find lowest F-ratio among non-pooled factors
       let minF = Infinity
       let minFactor = ''
       Object.entries(anova).forEach(([factor, analysis]) => {
@@ -376,7 +394,6 @@ export class Taguchi {
         errorSS += analysis.ss
         errorDf += analysis.df
         errorMS = errorSS / Math.max(errorDf, 1)
-        hasPooledFactors = true
         changed = true
       }
     }

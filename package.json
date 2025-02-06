@@ -1,6 +1,6 @@
 {
   "name": "taguchi",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "A TypeScript package for implementing Taguchi Method design of experiments",
   "module": "src/index.ts",
   "type": "module",
@@ -11,7 +11,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist",
+    "build": "tsc --declaration --emitDeclarationOnly && bun build ./src/index.ts --outdir ./dist",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --write \"**/*.{ts,json}\"",

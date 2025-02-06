@@ -559,5 +559,58 @@ describe('Taguchi', () => {
       expect(analysisLarger.optimalLevels.A).toBe(1)
       expect(analysisSmaller.optimalLevels.A).toBe(0)
     })
+
+    test('should handle L4 saturated design with 3 factors', () => {
+      const taguchi = new Taguchi({
+        type: 'L4',
+        factors: {
+          A: [1, 2],
+          B: [1, 2],
+          C: [1, 2],
+        },
+        snRatioType: SNRatioType.LARGER_IS_BETTER,
+      })
+
+      const results: ExperimentResult[] = [
+        { factors: { A: 1, B: 1, C: 1 }, result: 100 },
+        { factors: { A: 1, B: 2, C: 2 }, result: 90 },
+        { factors: { A: 2, B: 1, C: 2 }, result: 85 },
+        { factors: { A: 2, B: 2, C: 1 }, result: 80 },
+      ]
+
+      const analysis = taguchi.analyzeResults(results)
+
+      // Verify that one factor was automatically pooled
+      const pooledFactors = analysis.error?.pooledFactors || []
+      expect(pooledFactors.length).toBe(1)
+
+      // Verify that the pooled factor has expected properties
+      const pooledFactor = Object.entries(analysis.variance).find(([_, v]) => v.isPooled)
+      expect(pooledFactor).toBeDefined()
+      if (pooledFactor) {
+        const [name, variance] = pooledFactor
+        expect(variance.f).toBe(0)
+        expect(variance.contribution).toBe(0)
+        expect(variance.isPooled).toBe(true)
+      }
+
+      // Verify that non-pooled factors have valid statistics
+      const nonPooledFactors = Object.entries(analysis.variance).filter(([_, v]) => !v.isPooled)
+      expect(nonPooledFactors.length).toBe(2)
+      nonPooledFactors.forEach(([_, variance]) => {
+        expect(variance.f).toBeGreaterThan(0)
+        expect(variance.contribution).toBeGreaterThan(0)
+        expect(variance.isPooled).toBe(false)
+      })
+
+      // Verify error terms are properly calculated
+      expect(analysis.error?.df).toBe(1)
+      expect(analysis.error?.ms).toBeGreaterThan(0)
+      expect(analysis.error?.ss).toBeGreaterThan(0)
+
+      // Total contribution should still sum to 100%
+      const totalContribution = Object.values(analysis.contributions).reduce((sum, c) => sum + c, 0)
+      expect(totalContribution).toBeCloseTo(100, 1)
+    })
   })
 })
